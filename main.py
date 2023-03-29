@@ -1,7 +1,13 @@
-from secrets import api_key
+from secrets import api_key, sender, email_password
 import requests
 import json
 import re
+# email stuff
+from mail_recipients import mail_recipients
+from email.message import EmailMessage
+import ssl
+import smtplib
+
 
 sites = {
     "Kyloe": 352624,
@@ -86,6 +92,23 @@ def decide_send_alert(bool_weather_type, bool_precipitation):
     return True if bool_weather_type is True and bool_precipitation is True else False
 
 
+def send_email():
+    subject = "Climbing looks good!"
+    body = "The climbing looks good my friend"
+
+    em = EmailMessage()
+    em["From"] = sender
+    em["To"] = mail_recipients
+    em["Subject"] = subject
+    em.set_content(body)
+
+    context = ssl.create_default_context()
+
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
+        smtp.login(sender, email_password)
+        smtp.sendmail(sender, mail_recipients, em.as_string())
+
+
 def main():
     """this calls all the functions.  if is_weather_acceptable returns T, send email"""
 
@@ -94,6 +117,7 @@ def main():
     bool_weather_type = is_weather_type_acceptable(weather_types)
     bool_precipitation = is_precipitation_acceptable(rain_probabilities)
     decide_send_alert(bool_weather_type, bool_precipitation)
+    send_email()
 
 
 main()
