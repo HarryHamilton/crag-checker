@@ -58,7 +58,14 @@ def is_weather_type_acceptable(weather_types):
 
 
 def is_precipitation_acceptable(rain_probabilities):
-    """ decides if weather is acceptable by looking at precipitation probabilities"""
+    """ decides if weather is acceptable by looking at precipitation probabilities
+
+    True - avg rain < 30
+    False - avg rain > 30
+    """
+
+    avg_precipitation = sum(rain_probabilities) / len(rain_probabilities)
+    return False if avg_precipitation > 30 else True
 
 
 def main():
@@ -67,6 +74,7 @@ def main():
     api_response = make_call(354182, daily_weather_call)
     weather_types, rain_probabilities = parse_data(api_response)
     print(is_weather_type_acceptable(weather_types))
+    print(is_precipitation_acceptable(rain_probabilities))
     print(weather_types)
     print(rain_probabilities)
 
