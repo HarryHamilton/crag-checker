@@ -20,9 +20,8 @@ def parse_data(api_response):
     for counter in range(4):
         day_weather_type = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][0]["W"])
         night_weather_type = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][1]["W"])
-
-        day_rain_probability = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][0]["Pp"])
-        night_rain_probability = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][1]["Pp"])
+        day_rain_probability = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][0]["PPd"])
+        night_rain_probability = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][1]["PPn"])
 
         weather_types.append(day_weather_type)
         weather_types.append(night_weather_type)
@@ -40,3 +39,5 @@ def main():
 
     api_response = make_call(354182, daily_weather_call)
     parse_data(api_response)
+
+
