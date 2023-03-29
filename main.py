@@ -5,12 +5,14 @@ import re
 
 site_id = 354182
 daily_weather_call = \
-    f"http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/json/{site_id}?res=daily&key={api_key}"\
+    f"http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/json/{site_id}?res=daily&key={api_key}" \
         .format(site_id, api_key)
+
 
 def make_call(site_id, call):
     api_response = requests.get(daily_weather_call).json()
     return api_response
+
 
 def parse_data(api_response):
     """We need to parse through the data 8 times.
@@ -22,7 +24,8 @@ def parse_data(api_response):
         day_weather_type = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][0]["W"])
         night_weather_type = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][1]["W"])
         day_rain_probability = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][0]["PPd"])
-        night_rain_probability = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][1]["PPn"])
+        night_rain_probability = json.dumps(
+            api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][1]["PPn"])
 
         # The responses are enclosed in speech marks, so we must use regex to remove them.
         # We then convert the regex response to an integer
@@ -35,15 +38,37 @@ def parse_data(api_response):
     return weather_types, rain_probabilities
 
 
-def is_weather_acceptable():
-    """ decides if weather is acceptable by looking at weather type and Pp% """
+def is_weather_type_acceptable(weather_types):
+    """ decides if weather is acceptable by looking at weather type
+
+    To do this, we will check how many occurances of weather_types > 8 there are.
+    If there are two occurances greater than 8, then we will class it as UNACCEPTABLE
+
+    https://www.metoffice.gov.uk/services/data/datapoint/code-definitions
+
+    :return True - acceptable weather
+    :return False - unacceptable weather
+    """
+    gtr_8_occurances = 0
+    for code in weather_types:
+        if code > 8:
+            gtr_8_occurances += 1
+
+    return False if gtr_8_occurances > 1 else True
+
+
+def is_precipitation_acceptable(rain_probabilities):
+    """ decides if weather is acceptable by looking at precipitation probabilities"""
+
 
 def main():
-    """this calls all of the functions.  if is_weather_acceptable returns T, send email"""
+    """this calls all the functions.  if is_weather_acceptable returns T, send email"""
 
     api_response = make_call(354182, daily_weather_call)
     weather_types, rain_probabilities = parse_data(api_response)
+    print(is_weather_type_acceptable(weather_types))
     print(weather_types)
     print(rain_probabilities)
+
 
 main()
