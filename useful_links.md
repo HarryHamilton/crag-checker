@@ -66,6 +66,7 @@ know different "res":
 - 3hourly
 - daily
 
+["SiteRep"]["DV"]["Location"]["Period"][TODAY(0), TOMORROW(1) ETC]["Rep"][DAY (0), NIGHT (1)][CODE (E.G. "PP" FOR PRECICIPATION)]
 
 #print(json.dumps(response, indent=2))  # pretty prints response
 #print(json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][0]["Rep"], indent=2))  # print just the forecast for today
@@ -89,7 +90,7 @@ son.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][0]["Rep"][0]["W"],
 How to determine whether to send email or not:
 1) have a list of acceptable day & night weather types:
    - any weather type < 9 is acceptable2
-2) any precipitation probability < 20 is acceptable
+2) any avg precipitation probability < 30 is acceptable
 3) So, if weathertype < 9 and Pp < 20, send email.
 
 
