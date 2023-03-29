@@ -39,11 +39,10 @@ def parse_data(api_response):
 
     weather_types = []  # list containing all the weather types for the next 72 hours
     rain_probabilities = []  # list containing % chance of rain for the next 72 hours
-    now = datetime.now()
+    metoffice_location = json.dumps(api_response["SiteRep"]["DV"]["Location"]["name"])
+    date_checked = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][0]["value"])[1:11]
+
     for counter in range(4):
-        metoffice_location = json.dumps(api_response["SiteRep"]["DV"]["Location"]["name"])
-        date_time_checked = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][0]["value"])\
-                            + now.strftime("%H:%M%S")
         day_weather_type = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][0]["W"])
         night_weather_type = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][1]["W"])
         day_rain_probability = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][0]["PPd"])
@@ -58,7 +57,7 @@ def parse_data(api_response):
         rain_probabilities.append(int(re.sub("[^0-9]", "", day_rain_probability)))
         rain_probabilities.append(int(re.sub("[^0-9]", "", night_rain_probability)))
 
-    return weather_types, rain_probabilities, metoffice_location, date_time_checked
+    return weather_types, rain_probabilities, metoffice_location, date_checked
 
 
 def is_weather_type_acceptable(weather_types):
@@ -97,7 +96,9 @@ def decide_send_alert(bool_weather_type, bool_precipitation):
     return True if bool_weather_type is True and bool_precipitation is True else False
 
 
-def send_email(crag_name, metoffice_location, avg_weather, avg_precipitation, avg_windspeed, date_time_checked):
+def send_email(crag_name, metoffice_location, avg_weather, avg_precipitation, avg_windspeed, date_checked):
+    now = datetime.now()
+    time = now.strftime("%H:%M:%S")
     subject = f"Weather looks good at {crag_name} | Crag Checker".format(crag_name)
     body = f"""
     Crag: {crag_name}
@@ -105,9 +106,10 @@ def send_email(crag_name, metoffice_location, avg_weather, avg_precipitation, av
     Average weather over the next 72 hours: {avg_weather}
     Average chance of rain over the next 72 hours: {avg_precipitation}
     Average wind speed over the next 72 hours: {avg_windspeed}
-    Date/time checked: {date_time_checked}
     
-    go send""".format(crag_name, metoffice_location, avg_weather, avg_precipitation, avg_windspeed, date_time_checked)
+    I found this information on {date_checked} at {time}
+    
+    go send""".format(crag_name, metoffice_location, avg_weather, avg_precipitation, avg_windspeed, date_checked, time)
 
     em = EmailMessage()
     em["From"] = sender
@@ -126,10 +128,10 @@ def main():
     """this calls all the functions.  if is_weather_acceptable returns T, send email"""
 
     api_response = make_call(354182, daily_weather_call)
-    weather_types, rain_probabilities, metoffice_location, date_time_checked = parse_data(api_response)
-    bool_weather_type, avg_weather_type = is_weather_type_acceptable(weather_types)
-    bool_precipitation, avg_precipitation = is_precipitation_acceptable(rain_probabilities)
+    weather_types, rain_probabilities, metoffice_location, date_checked = parse_data(api_response)
+    bool_weather_type = is_weather_type_acceptable(weather_types)
+    bool_precipitation = is_precipitation_acceptable(rain_probabilities)
     decide_send_alert(bool_weather_type, bool_precipitation)
-    send_email("crag_name", metoffice_location, avg_weather_type, avg_precipitation, "avg_windspeed", date_time_checked)
+    send_email("crag_name", metoffice_location, "avg_weather_type", "avg_precipitation", "avg_windspeed", date_checked)
 
 main()
