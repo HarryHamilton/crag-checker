@@ -1,6 +1,7 @@
 from secrets import api_key
 import requests
 import json
+import re
 
 site_id = 354182
 daily_weather_call = \
@@ -23,10 +24,13 @@ def parse_data(api_response):
         day_rain_probability = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][0]["PPd"])
         night_rain_probability = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][1]["PPn"])
 
-        weather_types.append(day_weather_type)
-        weather_types.append(night_weather_type)
-        rain_probabilities.append(day_rain_probability)
-        rain_probabilities.append(night_rain_probability)
+        # The responses are enclosed in speech marks, so we must use regex to remove them.
+        # We then convert the regex response to an integer
+        # And finally add all the results to a list
+        weather_types.append(int(re.sub("[^0-9]", "", day_weather_type)))
+        weather_types.append(int(re.sub("[^0-9]", "", night_weather_type)))
+        rain_probabilities.append(int(re.sub("[^0-9]", "", day_rain_probability)))
+        rain_probabilities.append(int(re.sub("[^0-9]", "", night_rain_probability)))
 
     return weather_types, rain_probabilities
 
@@ -38,6 +42,8 @@ def main():
     """this calls all of the functions.  if is_weather_acceptable returns T, send email"""
 
     api_response = make_call(354182, daily_weather_call)
-    parse_data(api_response)
+    weather_types, rain_probabilities = parse_data(api_response)
+    print(weather_types)
+    print(rain_probabilities)
 
-
+main()
