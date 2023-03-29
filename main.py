@@ -3,6 +3,18 @@ import requests
 import json
 import re
 
+sites = {
+    "Kyloe": 352624,
+    "Bowden": 352624,
+    "Whickham": 354182,
+    "Corbys": 0,
+    "Shaftoe": 0,
+    "Crag Lough": 0,
+    "Corbys": 0,
+    "Simonside": 0,
+    "Ravensheugh": 0,
+}
+
 site_id = 354182
 daily_weather_call = \
     f"http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/json/{site_id}?res=daily&key={api_key}" \
