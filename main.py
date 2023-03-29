@@ -56,10 +56,6 @@ def is_weather_type_acceptable(weather_types):
 
     return False if gtr_8_occurances > 1 else True
 
-def decide_send_alert(bool_weather_type, bool_precipitation):
-    """Decides whether to send email or not based on weather type and chance of rain"""
-
-    return True if bool_weather_type is True and bool_precipitation is True else False
 
 def is_precipitation_acceptable(rain_probabilities):
     """ decides if weather is acceptable by looking at precipitation probabilities
@@ -70,6 +66,12 @@ def is_precipitation_acceptable(rain_probabilities):
 
     avg_precipitation = sum(rain_probabilities) / len(rain_probabilities)
     return False if avg_precipitation > 30 else True
+
+
+def decide_send_alert(bool_weather_type, bool_precipitation):
+    """Decides whether to send email or not based on weather type and chance of rain"""
+
+    return True if bool_weather_type is True and bool_precipitation is True else False
 
 
 def main():
