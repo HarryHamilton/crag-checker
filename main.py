@@ -9,7 +9,6 @@ from email.message import EmailMessage
 import ssl
 import smtplib
 
-
 sites = {
     "Kyloe": 352624,
     "Bowden": 352624,
@@ -38,8 +37,6 @@ def parse_data_for_weather_types(api_response):
     We want 4 days worth of data (inc today), each day giving us two things to look at (day n nite)"""
 
     weather_types = []  # list containing all the weather types for the next 72 hours
-
-
     for counter in range(4):
         day_weather_type = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][0]["W"])
         night_weather_type = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][1]["W"])
@@ -55,7 +52,6 @@ def parse_data_for_weather_types(api_response):
 
 def parse_data_for_rain_probabilities(api_response):
     rain_probabilities = []  # list containing % chance of rain for the next 72 hours
-
     for counter in range(4):
         day_rain_probability = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][0]["PPd"])
         night_rain_probability = json.dumps(
@@ -66,9 +62,11 @@ def parse_data_for_rain_probabilities(api_response):
 
     return rain_probabilities
 
+
 def get_metoffice_location(api_response):
     """Uses the API response to find the met office location used"""
     return json.dumps(api_response["SiteRep"]["DV"]["Location"]["name"])
+
 
 def get_date_checked(api_response):
     """Uses the API response to find the date that we checked the information on"""
@@ -149,10 +147,10 @@ def main():
     metoffice_location = get_metoffice_location(api_response)
     date_checked = get_date_checked(api_response)
 
-
     bool_weather_type = is_weather_type_acceptable(weather_types)
     bool_precipitation = is_precipitation_acceptable(rain_probabilities)
     decide_send_alert(bool_weather_type, bool_precipitation)
     send_email("crag_name", metoffice_location, "avg_weather_type", "avg_precipitation", "avg_windspeed", date_checked)
+
 
 main()
