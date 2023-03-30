@@ -121,7 +121,7 @@ def get_avg_windspeed(api_response):
         wind_speeds.append(int(re.sub("[^0-9]", "", day_windspeed)))
         wind_speeds.append(int(re.sub("[^0-9]", "", night_windspeed)))
 
-    return math.ceil(sum(wind_speeds) / len(wind_speeds)) # find the avg wind speed and round up
+    return math.ceil(sum(wind_speeds) / len(wind_speeds))  # find the avg wind speed and round up
 
 
 def decide_send_alert(bool_weather_type, bool_precipitation):
