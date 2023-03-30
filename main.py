@@ -103,6 +103,11 @@ def is_precipitation_acceptable(rain_probabilities):
     return False if avg_precipitation > 30 else True
 
 
+def get_avg_precipitation(rain_probabilities):
+    """Find the average % chance of rain for the next 72 hours"""
+    return sum(rain_probabilities) / len(rain_probabilities)
+
+
 def decide_send_alert(bool_weather_type, bool_precipitation):
     """Decides whether to send email or not based on weather type and chance of rain"""
 
@@ -117,7 +122,7 @@ def send_email(crag_name, metoffice_location, avg_weather, avg_precipitation, av
     Crag: {crag_name}
     Met office location used: {metoffice_location}
     Average weather over the next 72 hours: {avg_weather}
-    Average chance of rain over the next 72 hours: {avg_precipitation}
+    Average chance of rain over the next 72 hours: {avg_precipitation}%
     Average wind speed over the next 72 hours: {avg_windspeed}
     
     I found this information on {date_checked} at {time}
@@ -147,10 +152,12 @@ def main():
     metoffice_location = get_metoffice_location(api_response)
     date_checked = get_date_checked(api_response)
 
+    avg_precipitation = get_avg_precipitation(rain_probabilities)
+
     bool_weather_type = is_weather_type_acceptable(weather_types)
     bool_precipitation = is_precipitation_acceptable(rain_probabilities)
     decide_send_alert(bool_weather_type, bool_precipitation)
-    send_email("crag_name", metoffice_location, "avg_weather_type", "avg_precipitation", "avg_windspeed", date_checked)
+    send_email("crag_name", metoffice_location, "avg_weather_type", avg_precipitation, "avg_windspeed", date_checked)
 
 
 main()
