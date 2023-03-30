@@ -1,6 +1,7 @@
 from secrets import api_key, sender, email_password
 import requests
 import json
+import math
 import re
 from datetime import datetime
 # email stuff
@@ -108,6 +109,19 @@ def get_avg_precipitation(rain_probabilities):
     return sum(rain_probabilities) / len(rain_probabilities)
 
 
+def get_avg_windspeed(api_response):
+    wind_speeds = []
+    for counter in range(4):
+        day_windspeed = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][0]["S"])
+        night_windspeed = json.dumps(
+            api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][1]["S"])
+
+        wind_speeds.append(int(re.sub("[^0-9]", "", day_windspeed)))
+        wind_speeds.append(int(re.sub("[^0-9]", "", night_windspeed)))
+
+    return math.ceil(sum(wind_speeds) / len(wind_speeds))
+
+
 def decide_send_alert(bool_weather_type, bool_precipitation):
     """Decides whether to send email or not based on weather type and chance of rain"""
 
@@ -123,7 +137,7 @@ def send_email(crag_name, metoffice_location, avg_weather, avg_precipitation, av
     Met office location used: {metoffice_location}
     Average weather over the next 72 hours: {avg_weather}
     Average chance of rain over the next 72 hours: {avg_precipitation}%
-    Average wind speed over the next 72 hours: {avg_windspeed}
+    Average wind speed over the next 72 hours: {avg_windspeed}mph
     
     I found this information on {date_checked} at {time}
     
@@ -151,13 +165,14 @@ def main():
 
     metoffice_location = get_metoffice_location(api_response)
     date_checked = get_date_checked(api_response)
+    avg_windspeed = get_avg_windspeed(api_response)
 
     avg_precipitation = get_avg_precipitation(rain_probabilities)
 
     bool_weather_type = is_weather_type_acceptable(weather_types)
     bool_precipitation = is_precipitation_acceptable(rain_probabilities)
     decide_send_alert(bool_weather_type, bool_precipitation)
-    send_email("crag_name", metoffice_location, "avg_weather_type", avg_precipitation, "avg_windspeed", date_checked)
+    send_email("crag_name", metoffice_location, "avg_weather_type", avg_precipitation, avg_windspeed, date_checked)
 
 
 main()
