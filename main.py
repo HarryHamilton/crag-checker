@@ -39,7 +39,6 @@ def parse_data_for_weather_types(api_response):
 
     weather_types = []  # list containing all the weather types for the next 72 hours
     rain_probabilities = []  # list containing % chance of rain for the next 72 hours
-    date_checked = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][0]["value"])[1:11]
 
     for counter in range(4):
         day_weather_type = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][0]["W"])
@@ -56,7 +55,7 @@ def parse_data_for_weather_types(api_response):
         rain_probabilities.append(int(re.sub("[^0-9]", "", day_rain_probability)))
         rain_probabilities.append(int(re.sub("[^0-9]", "", night_rain_probability)))
 
-    return weather_types, rain_probabilities, date_checked
+    return weather_types, rain_probabilities
 
 
 def parse_data_for_rain_probabilities(api_response):
@@ -66,6 +65,8 @@ def get_metoffice_location(api_response):
     return json.dumps(api_response["SiteRep"]["DV"]["Location"]["name"])
 
 def get_date_checked(api_response):
+    """Uses the API response to find the date that we checked the information on"""
+    return json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][0]["value"])[1:11]
 
 
 def is_weather_type_acceptable(weather_types):
@@ -136,9 +137,10 @@ def main():
     """this calls all the functions.  if is_weather_acceptable returns T, send email"""
 
     api_response = make_call(354182, daily_weather_call)
-    weather_types, rain_probabilities, date_checked = parse_data_for_weather_types(api_response)
+    weather_types, rain_probabilities = parse_data_for_weather_types(api_response)
 
     metoffice_location = get_metoffice_location(api_response)
+    date_checked = get_date_checked(api_response)
 
 
     bool_weather_type = is_weather_type_acceptable(weather_types)
