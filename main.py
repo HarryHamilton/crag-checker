@@ -170,7 +170,6 @@ def send_email(crag_name, metoffice_location, avg_weather, avg_precipitation, av
                 <div style="height: 500px;width:400px">
                     <div style="text-align:center;">
                         <h3>{crag_name}</h3>
-                        <p><b>Crag: {crag_name}</p>
                         <p><b>Met office location used:</b> {metoffice_location}</p>
                         <p><b>Average weather over the next 72 hours:</b> {avg_weather}</p>
                         <p><b>Average chance of rain over the next 72 hours:</b> {avg_precipitation}%</p>
