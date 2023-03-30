@@ -1,0 +1,1 @@
+mail_recipients = ["hazzham@gmail.com", "afgmflxuiacdgwrvwg@tcwlx.com"]
