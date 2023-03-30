@@ -154,22 +154,36 @@ def send_email(crag_name, metoffice_location, avg_weather, avg_precipitation, av
     now = datetime.now()
     time = now.strftime("%H:%M:%S")
     subject = f"Weather looks good at {crag_name} | Crag Checker".format(crag_name)
-    body = f"""
-    Crag: {crag_name}
-    Met office location used: {metoffice_location}
-    Average weather over the next 72 hours: {avg_weather}
-    Average chance of rain over the next 72 hours: {avg_precipitation}%
-    Average wind speed over the next 72 hours: {avg_windspeed}mph
-    
-    I found this information on {date_checked} at {time}
-    
-    go send""".format(crag_name, metoffice_location, avg_weather, avg_precipitation, avg_windspeed, date_checked, time)
 
     em = EmailMessage()
     em["From"] = sender
     em["To"] = mail_recipients
     em["Subject"] = subject
-    em.set_content(body)
+    em.set_content(f"""
+    <!DOCTYPE html>
+    <html>
+        <body>
+            <div style="background-color:#eee;padding:10px 20px;">
+                <h2 style="font-family:Georgia, 'Times New Roman', Times, serif;color#454349;">Weather alert for {crag_name}</h2>
+            </div>
+            <div style="padding:20px 0px">
+                <div style="height: 500px;width:400px">
+                    <div style="text-align:center;">
+                        <h3>{crag_name}</h3>
+                        <p><b>Crag: {crag_name}</p>
+                        <p><b>Met office location used:</b> {metoffice_location}</p>
+                        <p><b>Average weather over the next 72 hours:</b> {avg_weather}</p>
+                        <p><b>Average chance of rain over the next 72 hours:</b> {avg_precipitation}%</p>
+                        <p><b>Average wind speed over the next 72 hours:</b> {avg_windspeed}mph</p>
+                        
+                        <i>I found this information on {date_checked} at {time}</i>
+                        
+                    </div>
+                </div>
+            </div>
+        </body>
+    </html>
+    """.format(crag_name, metoffice_location, avg_weather, avg_precipitation, avg_windspeed, date_checked, time), subtype="html")
 
     context = ssl.create_default_context()  # security stuff
 
@@ -195,7 +209,7 @@ def main():
     bool_weather_type = is_weather_type_acceptable(weather_types)
     bool_precipitation = is_precipitation_acceptable(rain_probabilities)
     decide_send_alert(bool_weather_type, bool_precipitation)
-    send_email("crag_name", metoffice_location, avg_weather_type, avg_precipitation, avg_windspeed, date_checked)
+    send_email("Whickham Thorns", metoffice_location, avg_weather_type, avg_precipitation, avg_windspeed, date_checked)
 
 
 main()
