@@ -22,6 +22,20 @@ sites = {
     "Ravensheugh": 0,
 }
 
+weather_codes = {
+    0: "Clear",
+    1: "Sunny",
+    2: "Partly cloudy",
+    3: "Partly cloudy",
+    4: "NA",
+    5: "Mist",
+    6: "Fog",
+    7: "Cloudy",
+    8: "Overcast",
+    9: "Light rain shower",
+    10: "Light rain shower",
+}
+
 site_id = 354182
 daily_weather_call = \
     f"http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/json/{site_id}?res=daily&key={api_key}" \
@@ -109,6 +123,12 @@ def get_avg_precipitation(rain_probabilities):
     return sum(rain_probabilities) / len(rain_probabilities)
 
 
+def get_avg_weather_type(weather_types, weather_codes):
+    """Find the average weather tpye over the next 72 hours and convert it to human readable"""
+    avg_type_code = math.ceil(sum(weather_types) / len(weather_types))  # find the avg type and round up
+    return weather_codes[avg_type_code]  # Match the code to the word
+
+
 def get_avg_windspeed(api_response):
     """Find the average wind speed over the next 72 hours"""
     wind_speeds = []
@@ -165,16 +185,17 @@ def main():
     weather_types = parse_data_for_weather_types(api_response)
     rain_probabilities = parse_data_for_rain_probabilities(api_response)
 
+    # make it so that these are only used IF we are gonna send an email. pointless to run them otherwise
     metoffice_location = get_metoffice_location(api_response)
     date_checked = get_date_checked(api_response)
     avg_windspeed = get_avg_windspeed(api_response)
-
     avg_precipitation = get_avg_precipitation(rain_probabilities)
+    avg_weather_type = get_avg_weather_type(weather_types, weather_codes)
 
     bool_weather_type = is_weather_type_acceptable(weather_types)
     bool_precipitation = is_precipitation_acceptable(rain_probabilities)
     decide_send_alert(bool_weather_type, bool_precipitation)
-    send_email("crag_name", metoffice_location, "avg_weather_type", avg_precipitation, avg_windspeed, date_checked)
+    send_email("crag_name", metoffice_location, avg_weather_type, avg_precipitation, avg_windspeed, date_checked)
 
 
 main()
