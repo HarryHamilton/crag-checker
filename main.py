@@ -110,16 +110,18 @@ def get_avg_precipitation(rain_probabilities):
 
 
 def get_avg_windspeed(api_response):
+    """Find the average wind speed over the next 72 hours"""
     wind_speeds = []
     for counter in range(4):
         day_windspeed = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][0]["S"])
         night_windspeed = json.dumps(
             api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][1]["S"])
 
+        # use regex to remove the speech marks
         wind_speeds.append(int(re.sub("[^0-9]", "", day_windspeed)))
         wind_speeds.append(int(re.sub("[^0-9]", "", night_windspeed)))
 
-    return math.ceil(sum(wind_speeds) / len(wind_speeds))
+    return math.ceil(sum(wind_speeds) / len(wind_speeds)) # find the avg wind speed and round up
 
 
 def decide_send_alert(bool_weather_type, bool_precipitation):
