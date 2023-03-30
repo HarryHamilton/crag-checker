@@ -38,27 +38,33 @@ def parse_data_for_weather_types(api_response):
     We want 4 days worth of data (inc today), each day giving us two things to look at (day n nite)"""
 
     weather_types = []  # list containing all the weather types for the next 72 hours
-    rain_probabilities = []  # list containing % chance of rain for the next 72 hours
+
 
     for counter in range(4):
         day_weather_type = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][0]["W"])
         night_weather_type = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][1]["W"])
-        day_rain_probability = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][0]["PPd"])
-        night_rain_probability = json.dumps(
-            api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][1]["PPn"])
 
         # The responses are enclosed in speech marks, so we must use regex to remove them.
         # We then convert the regex response to an integer
         # And finally add all the results to a list
         weather_types.append(int(re.sub("[^0-9]", "", day_weather_type)))
         weather_types.append(int(re.sub("[^0-9]", "", night_weather_type)))
-        rain_probabilities.append(int(re.sub("[^0-9]", "", day_rain_probability)))
-        rain_probabilities.append(int(re.sub("[^0-9]", "", night_rain_probability)))
 
-    return weather_types, rain_probabilities
+    return weather_types
 
 
 def parse_data_for_rain_probabilities(api_response):
+    rain_probabilities = []  # list containing % chance of rain for the next 72 hours
+
+    for counter in range(4):
+        day_rain_probability = json.dumps(api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][0]["PPd"])
+        night_rain_probability = json.dumps(
+            api_response["SiteRep"]["DV"]["Location"]["Period"][counter]["Rep"][1]["PPn"])
+
+        rain_probabilities.append(int(re.sub("[^0-9]", "", day_rain_probability)))
+        rain_probabilities.append(int(re.sub("[^0-9]", "", night_rain_probability)))
+
+    return rain_probabilities
 
 def get_metoffice_location(api_response):
     """Uses the API response to find the met office location used"""
@@ -137,7 +143,8 @@ def main():
     """this calls all the functions.  if is_weather_acceptable returns T, send email"""
 
     api_response = make_call(354182, daily_weather_call)
-    weather_types, rain_probabilities = parse_data_for_weather_types(api_response)
+    weather_types = parse_data_for_weather_types(api_response)
+    rain_probabilities = parse_data_for_rain_probabilities(api_response)
 
     metoffice_location = get_metoffice_location(api_response)
     date_checked = get_date_checked(api_response)
