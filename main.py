@@ -62,6 +62,7 @@ def parse_data_for_weather_types(api_response):
 def parse_data_for_rain_probabilities(api_response):
 
 def get_metoffice_location(api_response):
+    """Uses the API response to find the met office location used"""
     return json.dumps(api_response["SiteRep"]["DV"]["Location"]["name"])
 
 def get_date_checked(api_response):
